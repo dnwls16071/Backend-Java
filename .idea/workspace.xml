@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8071e765-b142-4c76-882f-7fb96d6a59aa" name="Changes" comment=":sparkles: Ch1 소스코드 추가" />
+    <list default="true" id="8071e765-b142-4c76-882f-7fb96d6a59aa" name="Changes" comment=":sparkles: Ch1 소스코드 추가">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -68,6 +70,7 @@
       <workItem from="1721322072054" duration="369000" />
       <workItem from="1721322471847" duration="19000" />
       <workItem from="1721376972185" duration="36000" />
+      <workItem from="1721485747313" duration="632000" />
     </task>
     <task id="LOCAL-00001" summary=":tada: 기본편 소스코드 최초 커밋">
       <option name="closed" value="true" />
