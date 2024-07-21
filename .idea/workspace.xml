@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8071e765-b142-4c76-882f-7fb96d6a59aa" name="Changes" comment=":tada: 예외 처리 프로젝트 최초 커밋">
+    <list default="true" id="8071e765-b142-4c76-882f-7fb96d6a59aa" name="Changes" comment="Init: 중급 2편 최초커밋">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -14,6 +14,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -41,7 +42,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;exception&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;inter2&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -79,6 +80,8 @@
       <workItem from="1721487203556" duration="139000" />
       <workItem from="1721487374633" duration="5000" />
       <workItem from="1721489221779" duration="30000" />
+      <workItem from="1721495698454" duration="104000" />
+      <workItem from="1721527036686" duration="42000" />
     </task>
     <task id="LOCAL-00001" summary=":tada: 기본편 소스코드 최초 커밋">
       <option name="closed" value="true" />
@@ -104,7 +107,23 @@
       <option name="project" value="LOCAL" />
       <updated>1721487095413</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Init: 중급 2편 최초커밋">
+      <option name="closed" value="true" />
+      <created>1721495746251</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1721495746251</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Init: 중급 2편 최초커밋">
+      <option name="closed" value="true" />
+      <created>1721495778244</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1721495778244</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -125,6 +144,7 @@
     <MESSAGE value=":tada: 기본편 소스코드 최초 커밋" />
     <MESSAGE value=":sparkles: Ch1 소스코드 추가" />
     <MESSAGE value=":tada: 예외 처리 프로젝트 최초 커밋" />
-    <option name="LAST_COMMIT_MESSAGE" value=":tada: 예외 처리 프로젝트 최초 커밋" />
+    <MESSAGE value="Init: 중급 2편 최초커밋" />
+    <option name="LAST_COMMIT_MESSAGE" value="Init: 중급 2편 최초커밋" />
   </component>
 </project>
