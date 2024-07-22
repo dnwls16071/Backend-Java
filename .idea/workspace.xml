@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8071e765-b142-4c76-882f-7fb96d6a59aa" name="Changes" comment=":tada: 예외 처리 프로젝트 최초 커밋">
+    <list default="true" id="8071e765-b142-4c76-882f-7fb96d6a59aa" name="Changes" comment=":sparkles: 자바 스택 소스코드 추가">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -12,8 +12,14 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -41,7 +47,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;exception&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;inter2&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -79,6 +85,11 @@
       <workItem from="1721487203556" duration="139000" />
       <workItem from="1721487374633" duration="5000" />
       <workItem from="1721489221779" duration="30000" />
+      <workItem from="1721495698454" duration="104000" />
+      <workItem from="1721527036686" duration="42000" />
+      <workItem from="1721528474209" duration="1416000" />
+      <workItem from="1721557054608" duration="1303000" />
+      <workItem from="1721622047824" duration="3198000" />
     </task>
     <task id="LOCAL-00001" summary=":tada: 기본편 소스코드 최초 커밋">
       <option name="closed" value="true" />
@@ -104,7 +115,111 @@
       <option name="project" value="LOCAL" />
       <updated>1721487095413</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Init: 중급 2편 최초커밋">
+      <option name="closed" value="true" />
+      <created>1721495746251</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1721495746251</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Init: 중급 2편 최초커밋">
+      <option name="closed" value="true" />
+      <created>1721495778244</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1721495778244</updated>
+    </task>
+    <task id="LOCAL-00006" summary=":sparkles: 제네릭1 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721528525238</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1721528525238</updated>
+    </task>
+    <task id="LOCAL-00007" summary=":sparkles: 제네릭2 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721547767171</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1721547767171</updated>
+    </task>
+    <task id="LOCAL-00008" summary=":sparkles: 배열 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721562850990</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1721562850990</updated>
+    </task>
+    <task id="LOCAL-00009" summary=":sparkles: 배열/배열리스트 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721562871312</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1721562871312</updated>
+    </task>
+    <task id="LOCAL-00010" summary=":sparkles: 연결리스트 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721562919566</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1721562919566</updated>
+    </task>
+    <task id="LOCAL-00011" summary=":sparkles: 자바 리스트 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721624550751</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1721624550751</updated>
+    </task>
+    <task id="LOCAL-00012" summary=":sparkles: 자바 셋 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721635525683</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1721635525684</updated>
+    </task>
+    <task id="LOCAL-00013" summary=":sparkles: 자바 데크 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721643426183</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1721643426184</updated>
+    </task>
+    <task id="LOCAL-00014" summary=":sparkles: 자바 맵 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721643444872</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1721643444872</updated>
+    </task>
+    <task id="LOCAL-00015" summary=":sparkles: 자바 큐 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721643459864</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1721643459864</updated>
+    </task>
+    <task id="LOCAL-00016" summary=":sparkles: 자바 스택 소스코드 추가">
+      <option name="closed" value="true" />
+      <created>1721643475605</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1721643475605</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -125,6 +240,18 @@
     <MESSAGE value=":tada: 기본편 소스코드 최초 커밋" />
     <MESSAGE value=":sparkles: Ch1 소스코드 추가" />
     <MESSAGE value=":tada: 예외 처리 프로젝트 최초 커밋" />
-    <option name="LAST_COMMIT_MESSAGE" value=":tada: 예외 처리 프로젝트 최초 커밋" />
+    <MESSAGE value="Init: 중급 2편 최초커밋" />
+    <MESSAGE value=":sparkles: 제네릭1 소스코드 추가" />
+    <MESSAGE value=":sparkles: 제네릭2 소스코드 추가" />
+    <MESSAGE value=":sparkles: 배열 소스코드 추가" />
+    <MESSAGE value=":sparkles: 배열/배열리스트 소스코드 추가" />
+    <MESSAGE value=":sparkles: 연결리스트 소스코드 추가" />
+    <MESSAGE value=":sparkles: 자바 리스트 소스코드 추가" />
+    <MESSAGE value=":sparkles: 자바 셋 소스코드 추가" />
+    <MESSAGE value=":sparkles: 자바 데크 소스코드 추가" />
+    <MESSAGE value=":sparkles: 자바 맵 소스코드 추가" />
+    <MESSAGE value=":sparkles: 자바 큐 소스코드 추가" />
+    <MESSAGE value=":sparkles: 자바 스택 소스코드 추가" />
+    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: 자바 스택 소스코드 추가" />
   </component>
 </project>
