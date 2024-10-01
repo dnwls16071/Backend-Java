@@ -8,7 +8,7 @@
 * [인프런] [모든 개발자를 위한 HTTP 웹 기본 지식](https://www.inflearn.com/course/http-%EC%9B%B9-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC/dashboard)
 * [CS] [자료구조](https://github.com/dnwls16071/Java/blob/main/datastructure/dataStructure.md)
 * [CS] [네트워크](https://github.com/dnwls16071/Java/blob/main/network/network.md)
-* [CS] [운영체제](https://github.com/dnwls16071/Java/blob/main/os/os.md) - 교착 상태까지 정리했습니다.
+* [CS] [운영체제](https://github.com/dnwls16071/Java/blob/main/os/os.md)
 * [CS] [알고리즘](https://github.com/dnwls16071/Everyday-Algorithm)
 
 ---
