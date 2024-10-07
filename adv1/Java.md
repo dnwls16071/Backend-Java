@@ -237,9 +237,6 @@ Runnable runnable = () -> log("run()");
 
 #### 1. Thread 클래스를 상속받은 CounterThread 쓰레드 클래스를 만들고 1부터 5까지 숫자를 1초 간격으로 출력해야 한다.
 
------------------------
-</details>
-
 ```java
 package thread.qa;
 
@@ -327,6 +324,8 @@ public class Question03 {
 }
 ```
 
+-----------------------
+</details>
 
 <details>
    <summary> 정리 (📖 Click)</summary>
