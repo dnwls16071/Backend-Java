@@ -1,4 +1,4 @@
-package thread;
+package adv1.thread;
 
 import static util.Logger.log;
 

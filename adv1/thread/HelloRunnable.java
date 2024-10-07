@@ -1,4 +1,4 @@
-package thread;
+package adv1.thread;
 
 public class HelloRunnable implements Runnable {
 
