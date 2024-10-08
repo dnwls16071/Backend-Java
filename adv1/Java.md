@@ -327,40 +327,242 @@ public class Question03 {
 -----------------------
 </details>
 
+## 쓰레드의 기본 정보
+
 <details>
    <summary> 정리 (📖 Click)</summary>
 <br />
+
+* 쓰레드 생성
+* 쓰레드 객체 정보
+* 쓰레드 ID
+* 쓰레드 이름
+* 쓰레드 우선순위
+* 쓰레드 상태
+
+```java
+import static util.Logger.log;
+
+public class ThreadInfoMain {
+	public static void main(String[] args) {
+		Thread thread = Thread.currentThread();
+		log("mainThread : " + thread);
+		log("mainThread.threadId() : " + thread.threadId());
+		log("mainThread.getName() : " + thread.getName());
+		log("mainThread.getPriority() : " + thread.getPriority());
+		log("mainThread.getThreadGroup() : " + thread.getThreadGroup());
+		log("mainThread.getState() : " + thread.getState());
+	}
+}
+```
+
+-----------------------
+</details>
+
+## 쓰레드의 생명 주기
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+![img_2.png](img_2.png)
+
+* 쓰레드의 상태
+  * New(새로운 상태) : 쓰레드가 생성되었으나 아직 시작되지는 않은 상태
+  * Runnable(실행 가능 상태) : 쓰레드가 실행 중이거나 실행될 준비가 된 상태
+  * 일시 중지 상태들(Suspended State)
+    * Blocked(차단 상태) : 쓰레드가 동기화 락을 기다리는 상태
+    * Waiting(대기 상태) : 쓰레드가 무기한으로 다른 쓰레드의 작업을 기다리는 상태
+    * Timed Waiting(시간 제한 대기 상태) : 쓰레드가 일정 시간 동안 다른 쓰레드의 작업을 기다리는 상태
+  * Terminated(종료 상태) : 쓰레드의 실행이 완료된 상태
+
+<p>
+
+* New(새로운 상태)
+  * 쓰레드가 생성되고 아직 시작되지는 않은 상태
+  * Thread 객체가 생성되었으나 `start()` 메서드는 아직 호출되지 않은 상태
+
+* Runnable(실행 가능한 상태)
+  * 쓰레드가 실행될 준비가 된 상태
+  * `start()` 메서드를 호출하면 이 상태로 진입한다.
+  * Runnable 상태에 있는 모든 쓰레드가 동시에 실행되는 것은 아니다.
+  * 운영체제 스케줄러가 각 쓰레드에 CPU 시간을 할당하여 실행하기 때문에, Runnable 상태에 있는 쓰레드는 스케줄러의 실행 대기열에 포함되어 있다가 차례로 CPU에서 실행된다.
+  * 참고로 운영체제 스케줄러의 실행 대기열에 있든, CPU에서 실제 실행되고 있든 모두 Runnable 상태이다. 자바에서 둘을 구분할 수 없다.
+
+* Blocked(차단 상태)
+  * 쓰레드가 다른 쓰레드에 의해 동기화 락을 얻기 위해 기다리는 상태이다.
+
+* Waiting(대기 상태)
+  * 쓰레드가 다른 쓰레드의 작업이 완료되기를 무기한 기다리는 상태이다.
+  * 쓰레드는 다른 쓰레드가 `notify()` 또는 `notifyAll()` 메서드를 호출하거나 `join()`이 완료될 때까지 기다린다.
+
+* Timed Waiting(시간 제한 대기 상태)
+  * 쓰레드가 특정 시간 동안 다른 쓰레드의 작업이 완료되기를 기다리는 상태이다.
+  * 주어진 시간이 경과하거나 다른 쓰레드가 해당 쓰레드를 깨우면 벗어날 수 있다.
+
+* Terminated(종료 상태)
+  * 쓰레드 실행이 완료된 상태이다.
+  * 쓰레드가 정상적으로 종료되거나 예외가 발생한 경우 이 상태로 진입한다.
+  * 쓰레드는 한 번 종료가 되면 다시 시작할 수 없다.
+
+* 쓰레드의 생명주기가 어떻게 작동하는지 꼼꼼히 짚고 넘어가자.
+
+```java
+import static util.Logger.log;
+
+public class ThreadStateMain {
+	public static void main(String[] args) throws InterruptedException {
+		Thread thread = new Thread(new MyRunnable(), "myThread");
+		log("myThread.state1 = " + thread.getState()); // NEW
+		log("myThread.start()");
+		thread.start();
+		Thread.sleep(1000);
+		log("myThread.state3 = " + thread.getState()); // TIMED_WAITING
+		Thread.sleep(4000);
+		log("myThread.state5 = " + thread.getState()); // TERMINATED
+		log("end");
+	}
+
+	static class MyRunnable implements Runnable {
+
+		@Override
+		public void run() {
+			try {
+				log("start");
+				log("myThread.state2 = " + Thread.currentThread().getState()); // RUNNABLE
+				log("sleep() start");
+				// 자고 있는 자기 자신을 찍기 위해선 다른 쓰레드가 필요하다.
+				Thread.sleep(3000);
+				log("sleep() end");
+				log("myThread.state4 = " + Thread.currentThread().getState()); // RUNNABLE
+				log("end");
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+}
+```
+
+-----------------------
+</details>
+
+## 체크 예외 재정의 - Runnable 인터페이스의 run() 메서드 구현 시  InterruptedException 체크 예외를 밖으로 던질 수 없는 이유
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* Runnable 인터페이스 원형
+
+```java
+@FunctionalInterface
+public interface Runnable {
+    /**
+     * Runs this operation.
+     */
+    void run();
+}
+```
+
+* 자바에서 메서드 재정의할 때 예외와 관련된 규칙이 존재한다.
+  * 체크 예외
+    * 부모 메서드가 체크 예외를 던지지 않는 경우 재정의된 자식 메서드 역시 체크 예외를 던질 수 없다.
+    * 자식 메서드는 부모 메서드가 던지는 체크 예외의 하위 타입만 던질 수 있다.
+    * 위 말인즉슨, 결국 인터페이스를 구현하는 구현 클래스의 경우 인터페이스 자체에서 체크 예외를 던지지 않기 때문에 구현 클래스에서 체크 예외를 던질 수 없다는 것이다.
+  * 언체크 예외
+    * 예외 처리를 강제하지 않기 때문에 상관없이 던질 수 있다.
 
 
 -----------------------
 </details>
 
-
-
-<details>
-   <summary> 정리 (📖 Click)</summary>
-<br />
-
-
------------------------
-</details>
-
-
+## join
 
 <details>
    <summary> 정리 (📖 Click)</summary>
 <br />
 
+* waiting(대기 상태)
+  * 쓰레드가 다른 쓰레드의 작업이 완료되기까지 무기한 기다리는 상태
 
------------------------
-</details>
+```java
+package util;
+
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+public class JoinMainV1 {
+	public static void main(String[] args) throws InterruptedException {
+		log("start");
+
+		SumTask task1 = new SumTask(1, 50);
+		SumTask task2 = new SumTask(51, 100);
+		Thread thread1 = new Thread(task1, "thread1");
+		Thread thread2 = new Thread(task2, "thread2");
+
+		thread1.start();
+		thread2.start();
+
+		log("join() - main 쓰레드가 thread1, thread2 쓰레드가 종료될 때까지 대기");
+		thread1.join();
+		thread2.join();
+		log("main 쓰레드 대기 완료");
+
+		log("thread1.result = " + task1.result);
+		log("thread2.result = " + task2.result);
+		int sumAll = task1.result + task2.result;
+		log("sumAll = " + sumAll);
+		log("end");
+	}
 
 
+	static class SumTask implements Runnable {
 
-<details>
-   <summary> 정리 (📖 Click)</summary>
-<br />
+		int startValue;
+		int endValue;
+		int result = 0;
 
+		public SumTask(int startValue, int endValue) {
+			this.startValue = startValue;
+			this.endValue = endValue;
+		}
+
+		@Override
+		public void run() {
+			log("작업 시작");
+			sleep(5000);	// 5초 소요(연산 소요 시간)
+			int sum = 0;
+			for (int i = startValue; i <= endValue; i++) {
+				sum += i;
+			}
+			result = sum;
+			log("작업 완료");
+		}
+	}
+}
+```
+
+#### `join()` 핵심 코드
+
+```java
+thread1.join();
+thread2.join();
+```
+
+* `main` 쓰레드에서 위의 코드를 실행하게 되면 `thread1`, `thread2` 쓰레드가 종료될 때까지 기다린다.
+* 결과적으로 다른 쓰레드의 작업이 끝날 때까지 무한히 대기하는 상태가 되므로 쓰레드의 생명주기에서 Waiting(대기 상태)에 해당한다.
+* `join()`을 호출하는 쓰레드는 대상 쓰레드가 Terminated(종료 상태)가 될 때까지 대기한다.
+* 대상 쓰레드가 Terminated가 되면 호출 쓰레드는 Runnable 상태가 되면서 다음 코드를 수행한다.
+* 하지만 이 `join()` 방식의 단점은 다른 쓰레드가 완료될 때까지 무한히 대기해야 한다는 점이다.
+* 다른 쓰레드의 작업을 일정 시간 동안만 기다리고 싶다면 `join()` 파라미터에 특정 시간을 지정해주면 된다.
+
+#### `join(ms)` 핵심 코드
+
+```java
+thread1.join(5000);
+thread2.join(5000);
+```
 
 -----------------------
 </details>
