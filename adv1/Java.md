@@ -566,3 +566,142 @@ thread2.join(5000);
 
 -----------------------
 </details>
+
+## 인터럽트
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* 특정 쓰레드 인스턴스에 `interrupted()` 메서드를 호출하면 해당 쓰레드에 인터럽트가 발생한다.
+* 인터럽트가 발생하면 해당 쓰레드에 InterruptedException 예외가 발생한다. 
+  * 이 때, 인터럽트를 받은 쓰레드는 대기 상태에서 깨어나 Runnable 상태가 된다.
+  * 이 때, InterruptedException 예외가 발생하고 catch 부분에서 예외를 잡는다.
+
+```java
+package interrupt;
+
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+public class ThreadStopMain {
+	public static void main(String[] args) {
+		MyTask myTask = new MyTask();
+		Thread thread = new Thread(myTask, "work");
+		thread.start();
+		
+		sleep(4000);
+		log("작업 중단 지시");
+		thread.interrupt();
+		log("work 쓰레드 인터럽트 상태1 : " + thread.isInterrupted());
+	}
+
+	static class MyTask implements Runnable {
+
+		@Override
+		public void run() {
+			try {
+				while (true) {
+					log("작업 중");
+					Thread.sleep(3000);
+				}
+			} catch (InterruptedException e) {
+				log("work 쓰레드 인터럽트 상태2 : " + Thread.currentThread().isInterrupted());
+				log("interrupt message : " + e.getMessage());
+				log("state : " + Thread.currentThread().getState());
+			}
+			log("자원 정리");
+			log("작업 종료");
+		}
+	}
+}
+```
+
+![img_3.png](img_3.png)
+
+* main 쓰레드에서 work 쓰레드에 인터럽트를 건다.
+  * 이 때, work 쓰레드의 인터럽트 상태는 true가 된다.
+  * `isInterrupted()` 메서드는 인터럽트 상태만을 체크하지 인터럽트의 상태를 변경하진 않는다.
+  * InterruptedException 예외가 발생하면 catch 부분에서 예외를 잡게 되고 결국 work 쓰레드의 인터럽트 상태는 false가 된다.
+* 자바에서 인터럽트가 한 번 발생하면 쓰레드 인터럽트 상태를 다시 정상(false가 정상)으로 돌리는 것은 이런 이유 때문이다.
+* 쓰레드의 인터럽트 상태를 정상으로 돌리지 않게 되면 이후에도 계속 인터럽트가 발생할 수 밖에 없다.
+* `interrupted()`
+  * 위 메서드는 쓰레드가 인터럽트 상태라면 true를 반환하고 해당 쓰레드의 인터럽트 상태를 false로 변경한다.
+  * 쓰레드가 인터럽트 상태가 아니라면 false를 반환하고 해당 쓰레드의 인터럽트 상태를 변경하지 않는다.
+
+```java
+package interrupt;
+
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+public class ThreadStopMain {
+	public static void main(String[] args) {
+		MyTask myTask = new MyTask();
+		Thread thread = new Thread(myTask, "work");
+		thread.start();
+		
+		sleep(1000);
+		log("작업 중단 지시");
+		thread.interrupt();
+		log("work 쓰레드 인터럽트 상태1 : " + thread.isInterrupted());
+	}
+
+	static class MyTask implements Runnable {
+
+		@Override
+		public void run() {
+			// 인터럽트 상태를 변경
+			while (!Thread.interrupted()) {
+				log("작업 중");
+			}
+			log("work 쓰레드 인터럽트 상태2 : " + Thread.currentThread().isInterrupted());
+			log("자원 정리");
+			log("작업 종료");
+		}
+	}
+}
+```
+
+-----------------------
+</details>
+
+## yield - 양보하기
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+```java
+package interrupt;
+
+public class YieldMain {
+
+	static final int THREAD_COUNT = 1000;
+
+	public static void main(String[] args) {
+		for (int i = 0; i < THREAD_COUNT; i++) {
+			Thread thread = new Thread(new MyRunnable());
+			thread.start();
+		}
+	}
+
+	static class MyRunnable implements Runnable {
+
+		@Override
+		public void run() {
+			for (int i = 0; i < 10; i++) {
+				System.out.println(Thread.currentThread().getName() + " - " + i);
+				Thread.yield();
+			}
+		}
+	}
+}
+```
+
+* `Thread.yield()` : 현재 실행 중인 쓰레드가 자발적으로 CPU를 양보하여 다른 쓰레드가 실행될 수 있도록 한다.
+* `yield()` 메서드를 호출한 쓰레드는 Runnable 상태를 유지하면서 CPU를 양보한다. 
+* `sleep()` 메서드의 경우 양보할 필요가 없는 상황에서도 양보를 하지만 `yield()`의 경우 양보할 쓰레드가 없다면 본인 쓰레드가 계속 실행될 수 있다.
+
+-----------------------
+</details>
