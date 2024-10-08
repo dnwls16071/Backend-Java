@@ -705,3 +705,108 @@ public class YieldMain {
 
 -----------------------
 </details>
+
+## volatile, 메모리 가시성
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* 실제 메모리의 접근 방식
+  * 우리가 생각했던 메모리의 접근 방식은 각각의 쓰레드가 메인 메모리에 직접 접근하는 것으로 생각하지만 실제로는 그렇지 않다.
+  * CPU와 메모리 사이에서 속도 차이를 완화하기 위해 캐시를 두고 사용한다.
+  * 각 쓰레드가 `runflag` 변수의 값을 사용하면 CPU는 이 값을 효율적으로 처리하기 위해 메인 메모리로부터 `runflag` 값을 각 쓰레드의 캐시 메모리에 불러온다.
+  * 그리고 이후에는 캐시 메모리에 있는 `runflag` 값을 사용하게 된다.
+
+![img_4.png](img_4.png)
+
+* 쓰레드의 실행 흐름과 하드웨어 관점에서의 로직
+
+![img_5.png](img_5.png)
+
+* 그렇다면 캐시 메모리에 `runflag` 값을 불러온다고 했는데 이 값이 반영되는 시점이 언제인지 알 수 있는지에 대한 질문을 던진다면 그 질문에 대한 답은 알 수 없다.
+* 이 부분은 CPU 설계 방식과 실행 환경에 따라 달라지기 때문이다.
+
+#### 메모리 가시성(Memory Visibility)
+
+* 멀티쓰레드 환경에서 한 쓰레드가 변경한 값이 다른 쓰레드에서 언제 보이는가에 대한 문제를 메모리 가시성이라 한다.
+* 이름 그대로 메모리에 변경한 값이 보이는지 안보이는지에 대한 문제이다.
+* 이에 대한 해결책으로 성능은 포기하더라도 값을 읽을 때 모두 메인 메모리에 직접 접근할 수 있도록 하는 `volatile` 키워드를 사용한다.
+
+
+```java
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+public class VolatileCountMain {
+	public static void main(String[] args) {
+		MyTask myTask = new MyTask();
+		Thread thread = new Thread(myTask);
+		thread.start();
+
+		sleep(100);
+
+		myTask.flag = false;
+		log("flag = " + myTask.flag + ", count = " + myTask.count + " in main");
+	}
+
+	static class MyTask implements Runnable {
+
+		boolean flag = true;
+		long count;
+
+		@Override
+		public void run() {
+			while (flag) {
+				count++;
+				if (count % 10000000 == 0) {
+					log("flag = " + flag + ", count = " + count);
+				}
+			}
+			log("flag = " + flag + ", count = " + count + " 종료");
+		}
+	}
+}
+```
+
+실행 결과
+
+```text
+16:20:07.067 [ Thread-0] flag = true, count = 10000000
+16:20:07.088 [     main] flag = false, count = 11169195 in main
+16:20:07.112 [ Thread-0] flag = true, count = 20000000
+16:20:07.114 [ Thread-0] flag = false, count = 20000000 종료
+```
+
+* 실행 결과를 보게 되면 메인 쓰레드에서 MyTask 쓰레드를 실행시킨다. 그 다음 메인 쓰레드를 0.1초 동안 잠을 자게 된다.
+* 이 때, 실행 결과를 보게 되면 메인 쓰레드에서의 종료 시점 결과와 MyTask 쓰레드에서의 종료 시점 결과가 다르다.
+* 이 결과가 달라지는 이유가 바로 메모리 가시성 때문이다.
+* 결국 이 결과가 달라지는 상황에서 메모리 가시성 문제를 해결하려면 `volatile` 키워드를 사용해야 한다.
+* 하지만 이 `volatile` 키워드가 항상 답이 되는 것은 아니다. 캐시 메모리를 통한 접근이 아닌 메인 메모리에 직접 접근하는 것이기 때문에 성능을 포기하고 가는 것이므로 정말 필요한 경우에만 사용해야 하는 것이 좋다.
+
+-----------------------
+</details>
+
+## 자바 메모리 모델(Java Memory Model)
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* 메모리 가시성(Memory Visibility)
+  * 멀티쓰레드 환경에서 한 쓰레드가 변경한 값이 다른 쓰레드에서 언제 보이는지에 대한 것을 메모리 가시성일고 한다.
+  * 이름 그대로 메모리에 변경한 값이 보이는가 보이지 않는가의 문제이다.
+
+* Java Memory Model
+  * JMM은 자바 프로그램이 어떻게 메모리에 접근하고 수정할 수 있는지를 규정하며, 특히 멀티쓰레드 프로그래밍에서 쓰레드 간의 상호작용을 정의한다.
+  * JMM에 대한 여러가지 내용이 있지만 핵심은 여러 쓰레드들의 작업 순서를 보장하는 happens-before 관계에 대한 정의다.
+
+* happens-before 관계
+  * 자바 메모리 모델에서 쓰레드 간의 작업 순서를 정의하는 개념
+  * 만약 A 작업이 B 작업보다 happens-before 관계에 있다면(즉, 선결된다면) B 작업에서는 A 작업에서의 모든 메모리 변경 사항을 볼 수 있다.
+  * 즉, 한 쓰레드에서 수행한 작업을 다른 쓰레드가 참조할 때, 최신 상태가 보장된다는 것이다.
+
+※ 메모리 가시성 문제 해결 : `volatile` 키워드 사용, 쓰레드 동기화 기법(`synchronized` 키워드, 락)
+
+-----------------------
+</details>
