@@ -624,3 +624,89 @@ public interface Serializable {
 -----------------------
 </details>
 
+## File, Files
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* 자바에서 파일 또는 디렉터리를 다룰 때는 `File`, `Files`, `Path` 클래스를 사용하면 된다.
+* `File`은 과거 호환을 유지하기 위해 남겨둔 기능이다. 이제는 `Files` 사용을 먼저 고려하자.
+
+```java
+package file;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class ReaderWriterMain {
+
+	private static final String FILEPATH = "file/hello.txt";
+
+	public static void main(String[] args) throws IOException {
+
+		String writeString = "abc\n가나다";
+
+		Path path = Path.of(FILEPATH);
+
+		// 파일에 쓰기
+		Files.writeString(path, writeString, StandardCharsets.UTF_8);
+
+		// 파일에서 읽기
+		String readString = Files.readString(path, StandardCharsets.UTF_8);
+		System.out.println(readString);
+	}
+}
+```
+
+* `Files.writeString()` : 파일에 쓰기
+* `Files.readString()` : 파일에서 모든 문자 읽기
+
+▶ `Files`를 사용하면 아주 쉽게 파일에 문자를 쓰고 읽을 수 있다.
+
+```java
+package file;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+public class ReaderWriterMainV2 {
+
+	private static final String FILEPATH = "file/hello.txt";
+
+	public static void main(String[] args) throws IOException {
+
+		String writeString = "abc\n가나다";
+
+		Path path = Path.of(FILEPATH);
+
+		// 파일에 쓰기
+		Files.writeString(path, writeString, StandardCharsets.UTF_8);
+
+		// 파일에서 읽기(한 줄씩 읽기)
+		List<String> strings = Files.readAllLines(path, StandardCharsets.UTF_8);
+		for (String string : strings) {
+			System.out.println(string);
+		}
+	}
+}
+```
+
+* `Files.readAllLines(path)` : 파일을 한 번에 다 읽고 라인 단위로 `List`에 나누어 저장하고 반환한다.
+  * 단 이 방법은 파일이 아주 크다면 한 번에 모든 파일을 메모리에 올리기 때문에 OutOfMemoryError가 발생할 수 있다.
+
+* `Files.lines(path)` : 파일을 한 줄 단위로 읽고 메모리 사용량을 줄이고 싶을 때 사용한다.
+  * 파일을 스트림 단위로 나누어 조회한다.
+  * 이 때, I/O 스트림이 아니라 람다와 스트림에서 사용하는 스트림이다.
+
+* 파일 복사 성능 최적화
+  * `transferTo()`
+  * `copy()` : 운영체제의 파일 복사 기능 사용
+
+-----------------------
+</details>
