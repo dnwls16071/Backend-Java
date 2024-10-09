@@ -810,3 +810,227 @@ public class VolatileCountMain {
 
 -----------------------
 </details>
+
+## 동시성
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* 멀티쓰레드를 사용할 때 가장 주의해야 할 점은 같은 자원(리소스)에 대한 여러 쓰레드가 동시에 접근할 때 발생하는 동시성 문제이다.
+  * 여러 쓰레드가 공유하는 자원을 공유 자원이라고 한다.
+  * 멀티쓰레드를 사용할 때 이런 공유 자원에 대한 접근을 적절하게 동기화해서 동시성 문제가 발생하지 않도록 하는 것이 중요하다.
+
+-----------------------
+</details>
+
+## 임계 영역
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* 임계 영역(Critical Section)
+  * 여러 쓰레드가 동시에 접근하면 데이터 불일치나 예상치 못한 문제가 발생할 수 있는 위험하고 중요한 코드 부분
+  * 여러 쓰레드가 동시에 접근해서는 안 되는 공유 자원을 접근하거나 수정하는 부분을 말한다.
+
+* 예시로 들었던 은행 출금의 경우가 대표적이다.
+  * 출금을 진행할 때 잔액을 검증하는 단계부터 잔액의 계산을 완료해 이를 반영할 때까지가 임계 영역이다.
+  * 여기서 잔액은 여러 쓰레드가 동시에 접근해서는 안되는 공유 자원이다.
+  * 한 번에 하나의 쓰레드만을 접근할 수 있도록 임계 영역을 안전하게 보호하기 위해 자바에서는 `synchronized` 키워드를 사용한다.
+
+-----------------------
+</details>
+
+## synchronized 메서드
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+```java
+package sync.v2;
+
+import sync.BankAccount;
+
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+public class BankAccountImplV2 implements BankAccount {
+
+  private int balance;
+
+  public BankAccountImplV2(int balance) {
+    this.balance = balance;
+  }
+
+  @Override
+  public synchronized boolean withdraw(int amount) {
+    log("거래 시작 : " + getClass().getSimpleName());
+    log("[검증 시작] 출금액 : " + amount + ", 잔액 : " + balance);
+
+    if (balance < amount) {
+      log("[검증 실패] 출금액 : " + amount + ", 잔액 : " + balance);
+      return false;
+    }
+
+    log("[검증 완료] 출금액 : " + amount + ", 잔액 : " + balance);
+    sleep(1000);	// 출금 소요 시간 :1초
+    balance -= amount;
+    log("[출금 완료] 출금액 : " + amount + ", 잔액 : " + balance);
+    log("거래 종료");
+    return true;
+  }
+
+  @Override
+  public synchronized int getBalance() {
+    return balance;
+  }
+}
+```
+
+![img_8.png](img_8.png)
+
+* 모든 객체(인스턴스) 내부에 자신만의 락(lock)을 가지고 있다.
+  * 모니터 락이라고도 부른다.
+  * 객체 내부에 있고 개발자가 확인하기 어렵다.
+* **쓰레드가 `synchronized` 키워드가 있는 메서드에 진입하려면 반드시 해당 인스턴스의 락이 있어야 한다.**
+
+![img_7.png](img_7.png)
+
+* 쓰레드 t1이 lock을 획득하게 된 후에 쓰레드 t2가 접근하고자 한다면 lock을 획득할 때까지 대기해야 한다.
+
+![img_6.png](img_6.png)
+
+* 쓰레드 t1에서 메서드 호출이 끝나면 락을 반납하고 대기하던 쓰레드 t2가 락을 획득한다.
+
+![img_9.png](img_9.png)
+
+* 참고
+  * 락을 획득하는 순서는 보장되지 않는다.
+    * 어떤 순서로 락을 획득하는지는 자바 표준에 정의되어 있지 않다. 
+    * 따라서 순서를 보장하지 않고 환경에 따라서 순서가 달라질 수 있다.
+
+* 주의
+  * `synchronized` 키워드의 장점이자 단점은 한 번에 하나의 쓰레드만 실행할 수 있다는 점이다.
+  * 여러 쓰레드가 동시에 실행하지 못하기 때문에 다른 쓰레드가 락을 획득할 때까지 무한히 대기해야 하고 전체적으로 보았을 때 성능이 떨어질 수 있다.
+  * 따라서 `synchronized`를 통해 여러 쓰레드를 동시에 실행할 수 없는 코드 구간은 꼭 필요한 곳에 한정해서 설정해야 한다.
+
+* `synchronized` 코드 블럭
+  * 메서드에 적용한 `synchronized` 적용 범위는 메서드 전체이다.
+  * 따라서 여러 쓰레드가 함께 실행해도 문제가 없는 부분들이 한 번에 하나의 쓰레드만 실행되는 문제가 발생한다.
+  * 자바는 이런 문제를 해결하기 위해 `synchronized`를 메서드 단위가 아니라 특정 코드 블럭에 최적화해서 적용할 수 있는 기능을 제공한다.
+
+```java
+package sync.v3;
+
+import sync.BankAccount;
+
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+public class BankAccountImplV3 implements BankAccount {
+
+  private int balance;
+
+  public BankAccountImplV3(int balance) {
+    this.balance = balance;
+  }
+
+  @Override
+  public boolean withdraw(int amount) {
+    log("거래 시작 : " + getClass().getSimpleName());
+    log("[검증 시작] 출금액 : " + amount + ", 잔액 : " + balance);
+
+    synchronized (this) {
+      if (balance < amount) {
+        log("[검증 실패] 출금액 : " + amount + ", 잔액 : " + balance);
+        return false;
+      }
+
+      log("[검증 완료] 출금액 : " + amount + ", 잔액 : " + balance);
+      sleep(1000);	// 출금 소요 시간 :1초
+      balance -= amount;
+      log("[출금 완료] 출금액 : " + amount + ", 잔액 : " + balance);
+      log("거래 종료");
+      return true;
+    }
+  }
+
+  @Override
+  public int getBalance() {
+    synchronized (this) {
+      return balance;
+    }
+  }
+}
+```
+
+* `synchronized (this) { }` : 안전한 임계 영역을 코드 블럭으로 지정한다.
+* 꼭 필요한 코드만 안전한 임계 영역으로 만들 수 있게 된다.
+* 여기서 ( ) 안에 들어가는 값은 락을 획득할 인스턴스의 참조이다.
+  * 위의 예제에서는 `BankAccountImplV3` 클래스 자체를 참조해야하므로 `this`를 넣어주면 된다.
+
+* 동기화를 사용하면 다음과 같은 문제를 해결할 수 있다.
+  * Race Condition(경쟁 상태) : 두 개 이상의 쓰레드가 경쟁적으로 동일한 자원을 수정할 때 발생하는 문제
+  * 데이터 일관성 : 여러 쓰레드가 동시에 읽고 쓰는 데이터의 일관성을 유지
+
+-----------------------
+</details>
+
+## 문제와 풀이
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+#### 1. 다음 코드의 결과는 20,000아어야 한다. 코드의 문제점을 찾아서 해결하라.
+
+```java
+package ex;
+
+import static util.Logger.log;
+
+public class SyncTest1BadMain {
+	public static void main(String[] args) throws InterruptedException {
+		Counter counter = new Counter();
+
+		Runnable task = new Runnable() {
+			@Override
+			public void run() {
+				for (int i = 0; i < 10000; i++) {
+					counter.increment();
+				}
+			}
+		};
+
+		Thread thread1 = new Thread(task, "thread1");
+		Thread thread2 = new Thread(task, "thread2");
+
+		thread1.start();
+		thread2.start();
+		thread1.join();
+		thread2.join();
+		log("결과 확인 : " + counter.getCount());
+	}
+
+	static class Counter {
+		private int count = 0;
+
+		// count 변수는 여러 쓰레드가 공유하는 자원이기 때문에
+		// 안전한 임계 영역을 위해 synchronized 코드 블럭 지정
+		public void increment() {
+			synchronized (this) {
+				count++;
+			}
+		}
+
+		public int getCount() {
+			return count;
+		}
+	}
+}
+```
+
+-----------------------
+</details>
