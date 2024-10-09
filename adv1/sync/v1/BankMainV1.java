@@ -1,6 +1,6 @@
 package adv1.sync.v1;
 
-import sync.BankAccount;
+import adv1.sync.BankAccount;
 
 import static adv1.util.Logger.log;
 

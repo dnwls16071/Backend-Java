@@ -1,6 +1,6 @@
 package adv1.sync.v3;
 
-import sync.BankAccount;
+import adv1.sync.BankAccount;
 
 public class WithdrawTask implements Runnable {
 
