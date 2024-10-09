@@ -1034,3 +1034,285 @@ public class SyncTest1BadMain {
 
 -----------------------
 </details>
+
+## 고급 동기화
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* 동기화에 사용되는 synchronized 키워드의 단점
+  * 무한 대기 : Blocked 상태의 쓰레드는 락이 해제될 때까지 무한 대기해야 한다.
+  * 공정성 : 락을 얻고자 할 때, 여러 Blocked 상태의 쓰레드 중에서 어떤 쓰레드가 락을 획득할지 알 수 없다. 최악의 경우 특정 쓰레드가 오랜 시간동안 락을 획득하지 못할 수 있다. 
+
+▶ 위와 같은 이슈들을 기반으로 결국 더 유연하고 세밀한 제어가 가능한 방법들이 필요하게 되었다.
+<br>
+▶ `LockSupport`를 사용하면 synchronized의 가장 큰 단점인 무한 대기 문제를 해결할 수 있다.
+
+* LockSupport 기능
+  * LockSupport는 쓰레드를 Waiting 상태로 변경한다.
+  * Waiting 상태는 누가 깨워주기 전까지 계속 대기한다. 그리고 CPU 실행 스케줄링에 들어가지 않는다.
+  * `park()` : 쓰레드를 Waiting 상태로 변경한다.
+  * `parkNanos(nanos)` : 쓰레드를 나노초 동안만 Timed_Waiting 상태로 변경한다.
+  * `unpark(thread)` : Waiting 상태의 대상 쓰레드를 Runnable 상태로 변경한다.
+
+```java
+package sync.lock;
+
+import java.util.concurrent.locks.LockSupport;
+
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+public class LockSupportMainV1 {
+	public static void main(String[] args) throws InterruptedException {
+		Thread thread1 = new Thread(new ParkTest(), "thread1");
+		thread1.start();
+
+		sleep(1000);
+		log("thread1 상태 : " + thread1.getState());
+
+		LockSupport.unpark(thread1);
+		// thread1.interrupt();
+	}
+
+	static class ParkTest implements Runnable {
+
+		@Override
+		public void run() {
+			log("park 시작");
+			LockSupport.park();
+			log("park 종료, state : " + Thread.currentThread().getState());
+			log("인터럽트 상태 : " + Thread.currentThread().isInterrupted());
+		}
+	}
+}
+```
+
+실행 결과
+
+```text
+11:26:06.368 [  thread1] park 시작
+11:26:19.034 [     main] thread1 상태 : WAITING
+11:26:21.986 [  thread1] park 종료, state : RUNNABLE
+11:26:24.902 [  thread1] 인터럽트 상태 : false
+```
+
+* LockSupport는 특정 쓰레드를 Waiting 상태로, 또 Runnable 상태로 변경할 수 있다.
+* 실행 중인 쓰레드는 `LockSupport.park()`를 호출해서 스스로 대기 상태에 진입할 수 있으나 대기 상태 쓰레드 자신은 외부 쓰레드의 도움을 받아야 깨어날 수 있다.
+* `LockSupport.parkNanos(nanos)`를 사용하면 지정한 시간 이후에 쓰레드가 깨어난다.
+* 또한, Waiting 상태의 쓰레드에 인터럽트가 발생하면 Waiting 상태에서 Runnable 상태로 변하면서 깨어난다.
+
+<br>
+
+#### LockSupport 정리
+
+* LockSupport를 사용하면 쓰레드를 Waiting, Timed_Waiting 상태로 변경할 수 있고 또 인터럽트를 받아서 쓰레드를 깨울 수 있다.
+* 해당 기능들을 잘 사용하면 synchronized의 단점인 무한 대기 문제를 해결할 수 있다.
+
+-----------------------
+</details>
+
+## ReentrantLock
+
+<details>
+   <summary> 정리 (📖 Click)</summary>
+<br />
+
+* Lock 인터페이스
+  * 대표적인 구현체 클래스 : ReentrantLock
+  * `void lock()` 
+    * 락을 획득한다.
+    * 만약 다른 쓰레드가 이미 락을 획득했다면 락이 풀릴 때까지 현재 쓰레드는 대기한다.
+    * 이 메서드는 인터럽트에 응답하지 않는다.
+  * `void lockInterruptibly()`
+    * 락 획득을 시도하되 다른 쓰레드가 인터럽트할 수 있도록 한다.
+    * 만약 다른 쓰레드가 이미 락을 획득했다면 현재 쓰레드는 락을 획득할 때까지 대기한다.
+    * 대기 중에 인터럽트가 발생하면 InterruptedException 예외가 발생하며 락 획득을 포기한다.
+  * `boolean tryLock()`
+    * 락 획득을 시도하고 즉시 성공 여부를 반환한다. 만약 다른 쓰레드가 이미 락을 획득했다면 `false`를, 그렇지 않으면 락을 획득하고 `true`를 반환한다.
+  * `void unlock()`
+    * 락을 해제한다.
+    * 락을 획득한 쓰레드가 호출해야 하며, 그렇지 않으면 IllegalMonitorStateException 예외가 발생한다.
+  * `Condition newCondition()`
+    * `Condition` 객체는 락과 결합되어 사용되며, 쓰레드가 특정 조건을 기다리거나 신호를 받을 수 있도록 한다.
+
+```java
+package sync.lock;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ReentrantLockEx {
+	private final Lock nonFairLock = new ReentrantLock();	// 비공정 모드 락
+	private final Lock fairLock = new ReentrantLock();		// 공정 모드 락
+
+	public void nonPairLockTest() {
+		nonFairLock.lock();
+		try {
+			// 임계 영역
+		} finally {
+			nonFairLock.unlock();
+		}
+	}
+
+	public void pairLockTest() {
+		fairLock.lock();
+		try {
+			// 임계 영역
+		} finally {
+			fairLock.unlock();
+		}
+	}
+}
+```
+
+* 비공정 모드(Non-fair mode)
+  * 비공정 모드는 ReentrantLock의 기본 모드이다.
+  * 이 모드에서는 락을 요청한 쓰레드가 락을 먼저 획득한다는 보장이 ㅇ벗다.
+  * 락을 풀었을 시, 대기 중인 쓰레드 중 아무나 락을 획득한다.
+  * 특정 쓰레드가 장기간 락을 획득하지 못하는 문제가 발생한다.
+
+* 공정 모드(Fair mode)
+  * 생산자에서 `true`를 전달한다.
+  * 공정 모드는 락을 요청한 순서대로 쓰레드가 락을 획득할 수 있도록 한다.
+  * 이는 먼저 대기한 쓰레드가 먼저 락을 획득하게 되면서 쓰레드 간의 공정성을 보장한다.
+  * 그러나 이로 인해 성능이 저하될 우려가 있다.
+
+![img_10.png](img_10.png)
+
+* 쓰레드 t1, t2가 출금을 시작한다. 여기서는 t1이 약간 먼저 실행된다고 가정한다.
+* ReentrantLock 내부에는 락과 락을 얻지 못해 대기하는 쓰레드를 관리하는 대기 큐가 있다.
+* 여기서 이야기하는 락은 객체 내부에 있는 모니터 락이 아니다. ReentrantLock이 제공하는 기능이다.
+
+![img_11.png](img_11.png)
+
+* 쓰레드 t1이 락을 획득한다.
+* 락을 획득하게 되면 t1은 Runnable 상태가 되고 임계 영역의 코드를 실행할 수 있다.
+
+![img_12.png](img_12.png)
+
+* 쓰레드 t1이 임계 영역의 코드를 수행하게 된다.
+
+![img_13.png](img_13.png)
+
+* 쓰레드 t1이 임계 영역의 코드를 수행하는 동안 락을 보유하고 있기 때문에 쓰레드 t2가 락을 획득하려고 시도하지만 락이 없다는 것을 알게 된다.
+
+![img_14.png](img_14.png)
+
+* 쓰레드 t2는 Waiting 상태가 되고 대기 큐에서 관리된다.
+
+![img_15.png](img_15.png)
+
+* 쓰레드 t1이 임계 영역 코드 수행을 완료한다.
+
+![img_16.png](img_16.png)
+
+* 쓰레드 t1이 락을 반납한다.
+* 그리고나서 대기 큐의 쓰레드를 하나 깨운다.
+* 쓰레드 t2는 Runnable 상태가 되면서 락 획득을 시도한다.
+
+![img_17.png](img_17.png)
+
+* 쓰레드 t2 역시 임계 영역의 코드를 수행하고 락을 반납한다.
+* 이 때, 대기 큐에 대기하는 쓰레드가 없기 때문에 깨우지 않는다.
+
+![img_18.png](img_18.png)
+
+* 메모리 가시성 문제를 해결할 때 사용하는 키워드인 volatile 키워드를 사용하지 않아도 Lock을 사용할 때 접근하는 변수의 메모리 가시성 문제는 해결된다.
+
+---
+
+* ReentrantLock - 대기 중단
+  * ReentrantLock을 사용하면 락을 무한 대기하지 않고, 중간에 빠져나오는 것이 가능하다.
+  * 심지어 락을 획득할 수 없다면 기다리지 않고 즉시 빠져나오는 것도 가능하다.
+  * `boolean tryLock()`
+    * 락 획득을 시도하고 즉시 성공 여부를 반환한다. 만약 다른 쓰레드가 이미 락을 획득했다면 `false`를 반환하고 그렇지 않으면 락을 획득하고 `true`를 반환한다.
+  * `boolean tryLock(long time, TimeUnit unit)`
+    * 주어진 시간 동안 락 획득을 시도한다.
+    * 주어진 시간 안에 획득하면 `true`를 반환하고 주어진 시간이 지나도 락을 획득하지 못하면 `false`를 반환한다.
+    * 이 메서드는 대기 중 인터럽트가 발생하면 InterruptedException 예외가 발생하게 되고 락 획득을 포기한다.
+
+```java
+package sync.lock.v5;
+
+import sync.lock.BankAccount;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static util.Logger.log;
+import static util.ThreadUtils.sleep;
+
+
+public class BankAccountImplV5 implements BankAccount {
+
+	private int balance;
+	private final Lock lock = new ReentrantLock();
+
+	public BankAccountImplV5(int balance) {
+		this.balance = balance;
+	}
+
+	@Override
+	public boolean withdraw(int amount) {
+		log("거래 시작 : " + getClass().getSimpleName());
+		log("[검증 시작] 출금액 : " + amount + ", 잔액 : " + balance);
+
+		// ReentrantLock 사용
+		// lock()을 사용했다면 반드시 unlock()으로 락을 해제해야만 한다.
+		// 락을 획득할 수 없다면? → 다른 쓰레드가 락을 획득하고 이미 작업을 수행 중
+		if (!lock.tryLock()) {
+			log("[진입 실패] : 이미 처리 중인 작업이 존재합니다.");
+			return false;
+		}
+
+		try {
+			log("[검증 시작] 출금액 : " + amount + ", 잔액 : " + balance);
+			if (balance < amount) {
+				log("[검증 실패] 출금액 : " + amount + ", 잔액 : " + balance);
+				return false;
+			}
+
+			log("[검증 완료] 출금액 : " + amount + ", 잔액 : " + balance);
+			sleep(1000);    // 출금 소요 시간 :1초
+			balance -= amount;
+			log("[출금 완료] 출금액 : " + amount + ", 잔액 : " + balance);
+		} finally {
+			lock.unlock();
+		}
+		log("거래 종료");
+		return true;
+	}
+
+	@Override
+	public int getBalance() {
+		lock.lock();
+		try {
+			return balance;
+		} finally {
+			lock.unlock();
+		}
+	}
+}
+```
+
+실행 결과
+
+```text
+19:10:37.945 [ Thread-1] 거래 시작 : BankAccountImplV5
+19:10:37.945 [ Thread-0] 거래 시작 : BankAccountImplV5
+19:10:37.961 [ Thread-1] [검증 시작] 출금액 : 600, 잔액 : 1000
+19:10:37.961 [ Thread-0] [검증 시작] 출금액 : 800, 잔액 : 1000
+19:10:37.962 [ Thread-1] [검증 시작] 출금액 : 600, 잔액 : 1000
+19:10:37.962 [ Thread-0] [진입 실패] : 이미 처리 중인 작업이 존재합니다.
+19:10:37.963 [ Thread-1] [검증 완료] 출금액 : 600, 잔액 : 1000
+19:10:38.421 [     main] thread1.state = TERMINATED
+19:10:38.422 [     main] thread2.state = TIMED_WAITING
+19:10:38.973 [ Thread-1] [출금 완료] 출금액 : 600, 잔액 : 400
+19:10:38.974 [ Thread-1] 거래 종료
+19:10:38.978 [     main] 최종 잔액 : 400
+```
+
+-----------------------
+</details>
